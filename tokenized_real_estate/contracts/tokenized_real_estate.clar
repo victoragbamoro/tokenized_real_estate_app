@@ -28,3 +28,18 @@
             (map-set token-holders (tuple (property-id property-id) (holder tx-sender))
                      (+ (default-to u0 (map-get? token-holders (tuple (property-id property-id) (holder tx-sender)))) amount))
             (ok "Tokens issued successfully.")))))))
+            
+(define-public (transfer-tokens (property-id uint) (to principal) (amount uint))
+  (let ((current-balance (map-get? token-holders (tuple (property-id property-id) (holder tx-sender)))))
+    (if (is-none current-balance)
+      (err "You do not hold tokens for this property.")
+      (let ((balance (unwrap! current-balance (err "You do not hold tokens for this property."))))
+        (if (< balance amount)
+          (err "Insufficient tokens.")
+          (begin
+            ;; Update balances
+            (map-set token-holders (tuple (property-id property-id) (holder tx-sender)) (- balance amount))
+            (let ((recipient-balance (map-get? token-holders (tuple (property-id property-id) (holder to)))))
+              (map-set token-holders (tuple (property-id property-id) (holder to))
+                       (+ (default-to u0 recipient-balance) amount))
+              (ok "Tokens transferred successfully."))))))))

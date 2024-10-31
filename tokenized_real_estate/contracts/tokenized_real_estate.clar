@@ -133,3 +133,12 @@
                              (description (get description current-request))
                              (status "approved")))
             (ok "Maintenance request approved.")))))))
+
+
+
+(define-read-only (get-property-details (property-id uint))
+  (let ((property (map-get? properties property-id)))
+    (if (is-none property)
+      (err "Property does not exist.")
+      (ok (unwrap! property (err "Property does not exist."))))))
+

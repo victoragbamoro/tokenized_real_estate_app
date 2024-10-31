@@ -100,3 +100,17 @@
           (begin
             (map-set property-listings property-id (tuple (listed false) (price u0)))
             (ok "Property delisted successfully.")))))))
+
+
+;; function to vote on a maintenance request
+(define-public (vote-maintenance-request (request-id uint))
+  (let ((request (map-get? maintenance-requests request-id)))
+    (if (is-none request)
+      (err "Maintenance request does not exist.")
+      (let ((current-request (unwrap! request (err "Maintenance request does not exist."))))
+        (begin
+          (map-set maintenance-requests request-id 
+                    (tuple (description (get description current-request))
+                           (votes (+ u1 (get votes current-request)))
+                           (approved (get approved current-request))))
+          (ok "Vote recorded successfully."))))))

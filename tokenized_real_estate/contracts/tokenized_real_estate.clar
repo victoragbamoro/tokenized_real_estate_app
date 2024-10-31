@@ -88,3 +88,15 @@
           (begin
             (map-set property-listings property-id (tuple (listed true) (price price)))
             (ok "Property listed successfully.")))))))
+
+;; delist property function
+(define-public (delist-property (property-id uint))
+  (let ((listing (map-get? property-listings property-id)))
+    (if (is-none listing)
+      (err "Property is not listed.")
+      (let ((current-listing (unwrap! listing (err "Property is not listed."))))
+        (if (not (get listed current-listing))
+          (err "Property is already not listed.")
+          (begin
+            (map-set property-listings property-id (tuple (listed false) (price u0)))
+            (ok "Property delisted successfully.")))))))

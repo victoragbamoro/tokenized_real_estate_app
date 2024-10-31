@@ -28,7 +28,7 @@
             (map-set token-holders (tuple (property-id property-id) (holder tx-sender))
                      (+ (default-to u0 (map-get? token-holders (tuple (property-id property-id) (holder tx-sender)))) amount))
             (ok "Tokens issued successfully.")))))))
-            
+
 (define-public (transfer-tokens (property-id uint) (to principal) (amount uint))
   (let ((current-balance (map-get? token-holders (tuple (property-id property-id) (holder tx-sender)))))
     (if (is-none current-balance)
@@ -43,3 +43,17 @@
               (map-set token-holders (tuple (property-id property-id) (holder to))
                        (+ (default-to u0 recipient-balance) amount))
               (ok "Tokens transferred successfully."))))))))
+
+(define-public (distribute-rental-income (property-id uint) (amount uint))
+  (let ((property (map-get? properties property-id)))
+    (if (is-none property)
+      (err "Property does not exist.")
+      (let ((current-property (unwrap! property (err "Property does not exist."))))
+        (let ((rental-income (get rental-income current-property)))
+          (begin
+            ;; Update rental income
+            (map-set properties property-id (tuple (value (get value current-property))
+                                                   (owner (get owner current-property))
+                                                   (total-tokens (get total-tokens current-property))
+                                                   (rental-income (+ rental-income amount))))
+            (ok "Rental income distributed.")))))))

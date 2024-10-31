@@ -57,3 +57,21 @@
                                                    (total-tokens (get total-tokens current-property))
                                                    (rental-income (+ rental-income amount))))
             (ok "Rental income distributed.")))))))
+
+
+(define-public (claim-rental-income (property-id uint))
+  (let ((property (map-get? properties property-id)))
+    (if (is-none property)
+      (err "Property does not exist.")
+      (let ((current-property (unwrap! property (err "Property does not exist."))))
+        (let ((rental-income (get rental-income current-property))
+              (holder-share (map-get? token-holders (tuple (property-id property-id) (holder tx-sender)))))
+          (if (is-none holder-share)
+            (err "You do not hold tokens for this property.")
+            (let ((share (unwrap! holder-share (err "Error fetching your token share."))))
+              (let ((amount-to-claim (/ (* rental-income share) (get total-tokens current-property))))
+                ;; Logic for transferring claimed rental income to the holder
+                ;; Here you would implement the transfer of the claimed amount to the user
+                (begin
+                  ;; Placeholder for actual transfer logic
+                  (ok (tuple (claimed amount-to-claim))))))))))))

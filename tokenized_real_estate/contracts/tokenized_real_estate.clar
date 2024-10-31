@@ -134,11 +134,16 @@
                              (status "approved")))
             (ok "Maintenance request approved.")))))))
 
-
-
+;; function to get-property-details
 (define-read-only (get-property-details (property-id uint))
   (let ((property (map-get? properties property-id)))
     (if (is-none property)
       (err "Property does not exist.")
       (ok (unwrap! property (err "Property does not exist."))))))
 
+;; function to get-token-balance
+(define-read-only (get-token-balance (property-id uint) (holder principal))
+  (let ((balance (map-get? token-holders (tuple (property-id property-id) (holder holder)))))
+    (if (is-none balance)
+      u0
+      (unwrap! balance u0))))

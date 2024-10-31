@@ -6,6 +6,7 @@
 (define-map maintenance-requests uint (tuple (description (string-ascii 256)) (votes uint) (approved bool)))
 (define-map property-maintenance uint (tuple (request-id uint) (description (string-ascii 256)) (status (string-ascii 20))))
 
+(define-map property-listings uint (tuple (listed bool) (price uint)))
 
 (define-public (initialize (property-id uint) (property-value uint) (owner principal))
   (begin
@@ -75,3 +76,15 @@
                 (begin
                   ;; Placeholder for actual transfer logic
                   (ok (tuple (claimed amount-to-claim))))))))))))
+
+
+(define-public (list-property (property-id uint) (price uint))
+  (let ((property (map-get? properties property-id)))
+    (if (is-none property)
+      (err "Property does not exist.")
+      (let ((current-property (unwrap! property (err "Property does not exist."))))
+        (if (not (is-eq tx-sender (get owner current-property)))
+          (err "Only the owner can list the property.")
+          (begin
+            (map-set property-listings property-id (tuple (listed true) (price price)))
+            (ok "Property listed successfully.")))))))

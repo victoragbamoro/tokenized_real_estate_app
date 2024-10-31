@@ -114,3 +114,22 @@
                            (votes (+ u1 (get votes current-request)))
                            (approved (get approved current-request))))
           (ok "Vote recorded successfully."))))))
+
+
+(define-public (approve-maintenance-request (request-id uint))
+  (let ((request (map-get? maintenance-requests request-id)))
+    (if (is-none request)
+      (err "Maintenance request does not exist.")
+      (let ((current-request (unwrap! request (err "Maintenance request does not exist."))))
+        (if (get approved current-request)
+          (err "Request is already approved.")
+          (begin
+            (map-set maintenance-requests request-id 
+                      (tuple (description (get description current-request))
+                             (votes (get votes current-request))
+                             (approved true)))
+            (map-set property-maintenance request-id 
+                      (tuple (request-id request-id)
+                             (description (get description current-request))
+                             (status "approved")))
+            (ok "Maintenance request approved.")))))))
